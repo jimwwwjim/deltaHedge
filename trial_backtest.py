@@ -32,8 +32,8 @@ pd.set_option('display.max_rows',100)
 
 
 #time structure
-contract_enddate = '2019-06-30'
-contract_startdate = '2019-05-31'
+contract_enddate = '2021-01-31'
+contract_startdate = '2020-07-31'
 def time_remain(contract_enddate):
     t_end = datetime.datetime.strptime(contract_enddate,'%Y-%m-%d')
     date_end = t_end.date()
@@ -51,16 +51,19 @@ print(t_delta)
 
 dt = 0     #相邻节点之间的距离
 Niter = 0   #总结点的选择
-if itertype == '1day':
-    dt = 1/360
-    Niter = t_delta.days
-    print(Niter)
-elif itertype == '30min':
-    dt = 1/3000        # waiting for modification
-    Niter = t_delta.days*12
-elif itertype == '1hour':
-    dt = 1/1500       # waiting for modification
-    Niter = t_delta.days*6
+def get_dt_Niter(itertype):
+	if itertype == '1day':
+    	dt = 1/360
+    	Niter = t_delta.days
+    	print(Niter)
+	elif itertype == '30min':
+    	dt = 1/3000        # waiting for modification
+    	Niter = t_delta.days*12
+	elif itertype == '1hour':
+    	dt = 1/1500       # waiting for modification
+    	Niter = t_delta.days*6
+	return dt,Niter
+
 
 
 
@@ -105,7 +108,7 @@ def MonteCarlo(reTime, rf, S, K, sigma):
 	#return {'asianput_MC':p,'asiancall_MC':c,'asiandelta':delta,'asian_gamma':gamma}
 	return {'asianput_MC':p,'asiancall_MC':c}
 
-
+'''
 
 def asianOption_delta(reTime, rf, S, K, sigma):
 	MC_1 = MonteCarlo(reTime, rf, S*1.01, K, sigma)   #和对冲仓处理的方式不同
@@ -131,9 +134,21 @@ def asian_theta(reTime,rf,S,K,sigma):
 	putvalue_2 = MC_2['asianput_MC']
 	theta = (putvalue_2-putvalue_1)/dt
 	return theta
+'''
 
 def BS_delta(reTime,rf,S,K,sigma):
     return norm.cdf((log(S/K)+(rf+sigma**2/2)*reTime*dt)/sigma*sqrt(reTime*dt),0,1)
+
+def DBA_BS(reTime,rf,S,K,sigma,min_pay):
+    list_=[]
+    for i in range(int(reTime)):
+        list_.append(BlackScholes(reTime-i,rf,S,K,sigma)['put_BS'])
+    print(np.average(list_))
+    print(np.average(list_)/S)
+    return np.average(list_)
+
+def DBA_Delta(reTime,rf,S,K,sigma,min_pay):
+    return (DBA_BS(reTime,rf,S+0.01,K,sigma,min_pay)-DBA_BS(reTime,rf,S-0.01,K,sigma,min_pay))/0.02
 
 class BSCall(object):
 	def __init__(self,start,T,K,N):
@@ -212,16 +227,15 @@ backtest based on the prices simulated
 '''
 
 
-def deltahedge_1(Niter,Sdynamics='S*=(1.0+vol*sqrt(dt)*gauss(0,1))',sigmaDynamics='sigma=.3'):
+def deltahedge_simulation_1(Niter,Sdynamics='S*=(1.0+vol*sqrt(dt)*gauss(0,1))',sigmaDynamics='sigma=.3'):
 	#optiontype = 'asian'     # optiontype could be: asian, european
 	#pcflag = 'put'           # pcflag could be call or put
 	global dt
 	dt = 1/250
-	    
-	S = 12000
-	Strike = 12000
+	S = 8500
+	Strike = 8500
 	rf = .03
-	sigma = .3
+	sigma = .28
 	cash = 0
 	#original code is dt = 1/250, in a daily basis, but in this case, each iteration means 30 mins)
 	# dt is defintly required
