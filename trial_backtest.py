@@ -32,7 +32,10 @@ pd.set_option('display.max_rows',100)
 
 
 #time structure
-contract_enddate = '2021-01-31'
+
+
+dt = 0     #相邻节点之间的距离
+Niter = 0   #总结点contract_enddate = '2021-01-31'
 contract_startdate = '2020-07-31'
 def time_remain(contract_enddate):
     t_end = datetime.datetime.strptime(contract_enddate,'%Y-%m-%d')
@@ -48,9 +51,6 @@ t_start = datetime.datetime.strptime(contract_startdate,'%Y-%m-%d')
 t_end = datetime.datetime.strptime(contract_enddate,'%Y-%m-%d')
 t_delta = t_end - t_start
 print(t_delta)
-
-dt = 0     #相邻节点之间的距离
-Niter = 0   #总结点的选择
 def get_dt_Niter(itertype):
 	if itertype == '1day':
     	dt = 1/360
@@ -277,7 +277,7 @@ def deltahedge_simulation_1(Niter,Sdynamics='S*=(1.0+vol*sqrt(dt)*gauss(0,1))',s
 		#exec(sigmaDynamics)
 		
 		
-		S*=exp(rf*dt+sigma*sqrt(dt)*gauss(0,1))
+
 		S_list.append(S)
 		asianPutValue = asianput.calc(iter,sigma,S,rf)
 		
