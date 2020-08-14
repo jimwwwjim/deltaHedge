@@ -9,7 +9,7 @@
 from BSM_lsm_hedging_algorithm import *
 
 
-def BSM_dynamic_hedge_mcs(M=50, I=10000):
+def BSM_dynamic_hedge_mcs(M=200, I=15 0000):
     ''' Monte Carlo simualtion of dynamic hedging paths
     for American put option in BSM model. '''
     #
